@@ -1,0 +1,60 @@
+{
+  "schedules": [
+    {
+      "schedule_id": "si_network_blocks_2024_2026",
+      "effective_from": "2024-07-01",
+      "effective_until": "2026-12-31",
+      "timezone": "Europe/Ljubljana",
+      "high_season_months": [11, 12, 1, 2],
+      "description": "Five time blocks for Slovenian network charges (omrežnina).",
+      "workday": {
+        "high": [
+          {"start": "00:00", "end": "06:00", "block": 3},
+          {"start": "06:00", "end": "07:00", "block": 2},
+          {"start": "07:00", "end": "14:00", "block": 1},
+          {"start": "14:00", "end": "16:00", "block": 2},
+          {"start": "16:00", "end": "20:00", "block": 1},
+          {"start": "20:00", "end": "22:00", "block": 2},
+          {"start": "22:00", "end": "24:00", "block": 3}
+        ],
+        "low": [
+          {"start": "00:00", "end": "06:00", "block": 4},
+          {"start": "06:00", "end": "07:00", "block": 3},
+          {"start": "07:00", "end": "14:00", "block": 2},
+          {"start": "14:00", "end": "16:00", "block": 3},
+          {"start": "16:00", "end": "20:00", "block": 2},
+          {"start": "20:00", "end": "22:00", "block": 3},
+          {"start": "22:00", "end": "24:00", "block": 4}
+        ]
+      },
+      "weekend_holiday": {
+        "high": [
+          {"start": "00:00", "end": "06:00", "block": 4},
+          {"start": "06:00", "end": "07:00", "block": 3},
+          {"start": "07:00", "end": "14:00", "block": 2},
+          {"start": "14:00", "end": "16:00", "block": 3},
+          {"start": "16:00", "end": "20:00", "block": 2},
+          {"start": "20:00", "end": "22:00", "block": 3},
+          {"start": "22:00", "end": "24:00", "block": 4}
+        ],
+        "low": [
+          {"start": "00:00", "end": "06:00", "block": 5},
+          {"start": "06:00", "end": "07:00", "block": 4},
+          {"start": "07:00", "end": "14:00", "block": 3},
+          {"start": "14:00", "end": "16:00", "block": 4},
+          {"start": "16:00", "end": "20:00", "block": 3},
+          {"start": "20:00", "end": "22:00", "block": 4},
+          {"start": "22:00", "end": "24:00", "block": 5}
+        ]
+      }
+    }
+  ],
+  "supplier_vt_mt": {
+    "schedule_id": "si_supplier_vt_mt_default",
+    "description": "Common Slovenian dual-tariff supplier schedule (independent of network blocks).",
+    "vt_start": "06:00",
+    "vt_end": "22:00",
+    "weekend_is_mt": true,
+    "holiday_is_mt": true
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "description": "Representative Souporaba (energy_sharing) sensor states/attributes extracted from v0.2.1 public interface",
+  "interval_attributes_schema": {
+    "interval_id": "string",
+    "interval_start": "ISO-8601 datetime",
+    "interval_end": "ISO-8601 datetime",
+    "operating_mode": "percentage_only|export_only|export_and_percentage",
+    "settlement_accumulated": "boolean",
+    "processed_at": "ISO-8601 datetime",
+    "source_type": "measured|inferred (optional on provider_export)"
+  },
+  "accepted_interval": {
+    "interval_id": "20260615T080000Z",
+    "interval_start": "2026-06-15T10:00:00+02:00",
+    "interval_end": "2026-06-15T10:15:00+02:00",
+    "operating_mode": "export_and_percentage",
+    "settlement_accumulated": true,
+    "processed_at": "2026-06-15T10:15:12+02:00",
+    "sensors": {
+      "receiver_import_last_interval": {"state": "2.000", "unit": "kWh"},
+      "shared_energy_last_interval": {"state": "0.500", "unit": "kWh"},
+      "used_shared_last_interval": {"state": "0.500", "unit": "kWh"},
+      "unused_shared_last_interval": {"state": "0.000", "unit": "kWh"},
+      "billable_energy_last_interval": {"state": "1.500", "unit": "kWh"},
+      "provider_export_last_interval": {
+        "state": "3.333",
+        "unit": "kWh",
+        "source_type": "measured"
+      },
+      "reconciliation_status": {"state": "matched"},
+      "operating_mode": {"state": "export_and_percentage"},
+      "fixed_allocation_percentage_last_interval": {"state": "15.0", "unit": "%"}
+    }
+  },
+  "skipped_interval": {
+    "interval_id": "20260615T081500Z",
+    "interval_start": "2026-06-15T10:15:00+02:00",
+    "interval_end": "2026-06-15T10:30:00+02:00",
+    "operating_mode": "export_and_percentage",
+    "settlement_accumulated": false,
+    "processed_at": "2026-06-15T10:30:12+02:00",
+    "sensors": {
+      "receiver_import_last_interval": {"state": "0.000", "unit": "kWh"},
+      "shared_energy_last_interval": {"state": "0.000", "unit": "kWh"},
+      "used_shared_last_interval": {"state": "0.000", "unit": "kWh"},
+      "unused_shared_last_interval": {"state": "0.000", "unit": "kWh"},
+      "billable_energy_last_interval": {"state": "0.000", "unit": "kWh"},
+      "reconciliation_status": {"state": "mismatch_skip"}
+    }
+  },
+  "warn_interval": {
+    "interval_id": "20260615T083000Z",
+    "interval_start": "2026-06-15T10:30:00+02:00",
+    "interval_end": "2026-06-15T10:45:00+02:00",
+    "operating_mode": "export_and_percentage",
+    "settlement_accumulated": true,
+    "processed_at": "2026-06-15T10:45:12+02:00",
+    "sensors": {
+      "receiver_import_last_interval": {"state": "1.000", "unit": "kWh"},
+      "shared_energy_last_interval": {"state": "0.200", "unit": "kWh"},
+      "used_shared_last_interval": {"state": "0.200", "unit": "kWh"},
+      "unused_shared_last_interval": {"state": "0.000", "unit": "kWh"},
+      "billable_energy_last_interval": {"state": "0.800", "unit": "kWh"},
+      "reconciliation_status": {"state": "mismatch_warn"}
+    }
+  },
+  "unique_id_pattern": "{entry_id}_{sensor_key}",
+  "domain": "energy_sharing",
+  "version": "0.2.1"
+}

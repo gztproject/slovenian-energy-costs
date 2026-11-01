@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Metering site",
+        "description": "Configure a Slovenian electricity metering site.",
+        "data": {
+          "site_name": "Site name",
+          "site_role": "Site role",
+          "currency": "Currency"
+        }
+      },
+      "models": {
+        "title": "Billing model",
+        "description": "Select one or more billing arrangements for this site.",
+        "data": {
+          "billing_models": "Billing models"
+        }
+      },
+      "meters": {
+        "title": "Meter entities",
+        "description": "Select cumulative energy sensors (kWh or Wh).",
+        "data": {
+          "grid_import_entity": "Grid import total",
+          "grid_export_entity": "Grid export total",
+          "solar_production_entity": "Solar production total",
+          "shared_energy_entity": "Shared energy total (optional)"
+        }
+      },
+      "supplier": {
+        "title": "Electricity contract",
+        "description": "Supplier pricing. Document whether prices include VAT.",
+        "data": {
+          "supplier_mode": "Supplier mode",
+          "supplier_et_price": "ET price (€/kWh)",
+          "supplier_vt_price": "VT price (€/kWh)",
+          "supplier_mt_price": "MT price (€/kWh)",
+          "dynamic_price_entity": "Dynamic price entity",
+          "supplier_markup_fixed": "Fixed markup (€/kWh)",
+          "supplier_markup_pct": "Percentage markup (%)",
+          "supplier_discount_pct": "Discount (%)",
+          "prices_include_vat": "Configured prices include VAT",
+          "vat_rate": "VAT rate",
+          "fixed_monthly_supplier": "Fixed monthly supplier charge (€)"
+        }
+      },
+      "network": {
+        "title": "Network charges",
+        "description": "Customer category and agreed power (dogovorjena moč).",
+        "data": {
+          "customer_category": "Customer category (uporabniška skupina)",
+          "has_15min_measurement": "Has 15-minute measurement",
+          "agreed_power_b1": "Agreed power block 1 (kW)",
+          "agreed_power_b2": "Agreed power block 2 (kW)",
+          "agreed_power_b3": "Agreed power block 3 (kW)",
+          "agreed_power_b4": "Agreed power block 4 (kW)",
+          "agreed_power_b5": "Agreed power block 5 (kW)",
+          "enable_levies": "Enable per-kWh levies",
+          "excise_rate": "Excise / trošarina (€/kWh)",
+          "ove_spte_rate": "OVE/SPTE (€/kWh)"
+        }
+      },
+      "settlement": {
+        "title": "Settlement source",
+        "description": "Use physical meters or Souporaba (energy_sharing) settlement.",
+        "data": {
+          "settlement_source": "Settlement source",
+          "souporaba_entry_id": "Souporaba instance"
+        }
+      },
+      "confirm": {
+        "title": "Confirm configuration",
+        "description": "Summary: {summary}"
+      }
+    },
+    "abort": {
+      "already_configured": "This metering site is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update contract rates",
+        "description": "Changing rates does not reprice historical intervals.",
+        "data": {
+          "supplier_et_price": "ET price (€/kWh)",
+          "supplier_vt_price": "VT price (€/kWh)",
+          "supplier_mt_price": "MT price (€/kWh)",
+          "fixed_monthly_supplier": "Fixed monthly supplier charge (€)",
+          "prices_include_vat": "Configured prices include VAT",
+          "enable_levies": "Enable per-kWh levies"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_supplier_price": {
+        "name": "Current supplier price"
+      },
+      "current_network_energy_price": {
+        "name": "Current network energy price"
+      },
+      "current_levies_price": {
+        "name": "Current levies price"
+      },
+      "current_variable_price": {
+        "name": "Current variable price (incl. VAT)"
+      },
+      "grid_variable_cost_total": {
+        "name": "Grid variable cost total"
+      },
+      "supplier_energy_cost_total": {
+        "name": "Supplier energy cost total"
+      },
+      "network_energy_cost_total": {
+        "name": "Network energy cost total"
+      },
+      "invoice_cost_total": {
+        "name": "Invoice cost total"
+      },
+      "souporaba_savings_total": {
+        "name": "Souporaba savings total"
+      },
+      "current_tariff_block": {
+        "name": "Current network tariff block"
+      },
+      "current_supplier_tariff": {
+        "name": "Current supplier tariff"
+      },
+      "next_tariff_change": {
+        "name": "Next tariff change"
+      },
+      "month_estimated_invoice": {
+        "name": "Month estimated invoice"
+      },
+      "month_supplier_energy_cost": {
+        "name": "Month supplier energy cost"
+      },
+      "month_network_energy_cost": {
+        "name": "Month network energy cost"
+      },
+      "month_network_power_cost": {
+        "name": "Month network power cost"
+      },
+      "last_processed_interval": {
+        "name": "Last processed interval"
+      },
+      "last_reconciliation_status": {
+        "name": "Last reconciliation status"
+      },
+      "billing_data_quality": {
+        "name": "Billing data quality"
+      },
+      "souporaba_allocated_energy_total": {
+        "name": "Souporaba allocated energy total"
+      },
+      "souporaba_used_energy_total": {
+        "name": "Souporaba used energy total"
+      },
+      "souporaba_unused_energy_total": {
+        "name": "Souporaba unused energy total"
+      },
+      "souporaba_supplier_savings_total": {
+        "name": "Souporaba supplier savings total"
+      },
+      "souporaba_unused_allocation_value_total": {
+        "name": "Souporaba unused allocation value"
+      },
+      "souporaba_allocation_utilization": {
+        "name": "Souporaba allocation utilization"
+      },
+      "souporaba_last_settlement_status": {
+        "name": "Souporaba last settlement status"
+      },
+      "souporaba_last_billed_interval": {
+        "name": "Souporaba last billed interval"
+      },
+      "net_metering_balance": {
+        "name": "Net metering balance"
+      },
+      "eligible_export": {
+        "name": "Eligible export"
+      },
+      "shared_energy_deducted": {
+        "name": "Shared energy deducted"
+      },
+      "annual_import": {
+        "name": "Annual import"
+      },
+      "annual_export": {
+        "name": "Annual export"
+      },
+      "reserve_status": {
+        "name": "Reserve status"
+      }
+    },
+    "number": {
+      "agreed_power_b1": {
+        "name": "Agreed power block 1"
+      },
+      "agreed_power_b2": {
+        "name": "Agreed power block 2"
+      },
+      "agreed_power_b3": {
+        "name": "Agreed power block 3"
+      },
+      "agreed_power_b4": {
+        "name": "Agreed power block 4"
+      },
+      "agreed_power_b5": {
+        "name": "Agreed power block 5"
+      }
+    }
+  },
+  "issues": {
+    "missing_network_tariff": {
+      "title": "Missing network tariff rates",
+      "description": "No bundled network tariff rates cover {date}. Update the rate registry or wait for published official tables. Calculations for this period are incomplete."
+    }
+  }
+}

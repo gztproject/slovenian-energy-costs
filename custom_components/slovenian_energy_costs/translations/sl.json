@@ -1,0 +1,222 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Merilno mesto",
+        "description": "Nastavite slovensko merilno mesto za električno energijo.",
+        "data": {
+          "site_name": "Ime mesta",
+          "site_role": "Vloga mesta",
+          "currency": "Valuta"
+        }
+      },
+      "models": {
+        "title": "Model obračuna",
+        "description": "Izberite enega ali več modelov obračuna za to mesto.",
+        "data": {
+          "billing_models": "Modeli obračuna"
+        }
+      },
+      "meters": {
+        "title": "Merilniki",
+        "description": "Izberite kumulativne senzorje energije (kWh ali Wh).",
+        "data": {
+          "grid_import_entity": "Skupni prevzem iz omrežja",
+          "grid_export_entity": "Skupni izvoz v omrežje",
+          "solar_production_entity": "Skupna sončna proizvodnja",
+          "shared_energy_entity": "Skupna souporaba (neobvezno)"
+        }
+      },
+      "supplier": {
+        "title": "Pogodba z dobaviteljem",
+        "description": "Cene dobavitelja. Zabeležite, ali cene vključujejo DDV.",
+        "data": {
+          "supplier_mode": "Način dobavitelja",
+          "supplier_et_price": "Cena ET (€/kWh)",
+          "supplier_vt_price": "Cena VT (€/kWh)",
+          "supplier_mt_price": "Cena MT (€/kWh)",
+          "dynamic_price_entity": "Entiteta dinamične cene",
+          "supplier_markup_fixed": "Fiksni pribitek (€/kWh)",
+          "supplier_markup_pct": "Odstotni pribitek (%)",
+          "supplier_discount_pct": "Popust (%)",
+          "prices_include_vat": "Nastavljene cene vključujejo DDV",
+          "vat_rate": "Stopnja DDV",
+          "fixed_monthly_supplier": "Fiksna mesečna dajatev dobavitelja (€)"
+        }
+      },
+      "network": {
+        "title": "Omrežnina",
+        "description": "Uporabniška skupina in dogovorjena obračunska moč.",
+        "data": {
+          "customer_category": "Uporabniška skupina",
+          "has_15min_measurement": "Ima 15-minutne meritve",
+          "agreed_power_b1": "Dogovorjena moč blok 1 (kW)",
+          "agreed_power_b2": "Dogovorjena moč blok 2 (kW)",
+          "agreed_power_b3": "Dogovorjena moč blok 3 (kW)",
+          "agreed_power_b4": "Dogovorjena moč blok 4 (kW)",
+          "agreed_power_b5": "Dogovorjena moč blok 5 (kW)",
+          "enable_levies": "Omogoči dajatve na kWh",
+          "excise_rate": "Trošarina (€/kWh)",
+          "ove_spte_rate": "OVE/SPTE (€/kWh)"
+        }
+      },
+      "settlement": {
+        "title": "Vir poravnave",
+        "description": "Uporabite fizične števce ali poravnavo Souporaba (energy_sharing).",
+        "data": {
+          "settlement_source": "Vir poravnave",
+          "souporaba_entry_id": "Instanca Souporabe"
+        }
+      },
+      "confirm": {
+        "title": "Potrditev nastavitev",
+        "description": "Povzetek: {summary}"
+      }
+    },
+    "abort": {
+      "already_configured": "To merilno mesto je že nastavljeno."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Posodobitev cen pogodbe",
+        "description": "Sprememba cen ne preracunava zgodovinskih intervalov.",
+        "data": {
+          "supplier_et_price": "Cena ET (€/kWh)",
+          "supplier_vt_price": "Cena VT (€/kWh)",
+          "supplier_mt_price": "Cena MT (€/kWh)",
+          "fixed_monthly_supplier": "Fiksna mesečna dajatev dobavitelja (€)",
+          "prices_include_vat": "Nastavljene cene vključujejo DDV",
+          "enable_levies": "Omogoči dajatve na kWh"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_supplier_price": {
+        "name": "Trenutna cena dobavitelja"
+      },
+      "current_network_energy_price": {
+        "name": "Trenutna omrežnina za energijo"
+      },
+      "current_levies_price": {
+        "name": "Trenutne dajatve"
+      },
+      "current_variable_price": {
+        "name": "Trenutna spremenljiva cena (z DDV)"
+      },
+      "grid_variable_cost_total": {
+        "name": "Skupni spremenljivi strošek omrežja"
+      },
+      "supplier_energy_cost_total": {
+        "name": "Skupni strošek energije dobavitelja"
+      },
+      "network_energy_cost_total": {
+        "name": "Skupni strošek omrežnine za energijo"
+      },
+      "invoice_cost_total": {
+        "name": "Skupni ocenjeni račun"
+      },
+      "souporaba_savings_total": {
+        "name": "Skupni prihranek souporabe"
+      },
+      "current_tariff_block": {
+        "name": "Trenutni časovni blok omrežnine"
+      },
+      "current_supplier_tariff": {
+        "name": "Trenutna tarifa dobavitelja"
+      },
+      "next_tariff_change": {
+        "name": "Naslednja sprememba tarife"
+      },
+      "month_estimated_invoice": {
+        "name": "Ocena mesečnega računa"
+      },
+      "month_supplier_energy_cost": {
+        "name": "Mesečni strošek energije dobavitelja"
+      },
+      "month_network_energy_cost": {
+        "name": "Mesečna omrežnina za energijo"
+      },
+      "month_network_power_cost": {
+        "name": "Mesečna omrežnina za moč"
+      },
+      "last_processed_interval": {
+        "name": "Zadnji obdelani interval"
+      },
+      "last_reconciliation_status": {
+        "name": "Status zadnje uskladitve"
+      },
+      "billing_data_quality": {
+        "name": "Kakovost obračunskih podatkov"
+      },
+      "souporaba_allocated_energy_total": {
+        "name": "Skupna dodeljena souporaba"
+      },
+      "souporaba_used_energy_total": {
+        "name": "Skupna uporabljena souporaba"
+      },
+      "souporaba_unused_energy_total": {
+        "name": "Skupna neuporabljena souporaba"
+      },
+      "souporaba_supplier_savings_total": {
+        "name": "Skupni prihranek pri dobavitelju"
+      },
+      "souporaba_unused_allocation_value_total": {
+        "name": "Vrednost neuporabljene dodelitve"
+      },
+      "souporaba_allocation_utilization": {
+        "name": "Izkoristek dodelitve souporabe"
+      },
+      "souporaba_last_settlement_status": {
+        "name": "Status zadnje poravnave souporabe"
+      },
+      "souporaba_last_billed_interval": {
+        "name": "Zadnji obračunani interval souporabe"
+      },
+      "net_metering_balance": {
+        "name": "Stanje letnega netiranja"
+      },
+      "eligible_export": {
+        "name": "Upravičen izvoz"
+      },
+      "shared_energy_deducted": {
+        "name": "Odšteta souporaba"
+      },
+      "annual_import": {
+        "name": "Letni prevzem"
+      },
+      "annual_export": {
+        "name": "Letni izvoz"
+      },
+      "reserve_status": {
+        "name": "Status rezerve"
+      }
+    },
+    "number": {
+      "agreed_power_b1": {
+        "name": "Dogovorjena moč blok 1"
+      },
+      "agreed_power_b2": {
+        "name": "Dogovorjena moč blok 2"
+      },
+      "agreed_power_b3": {
+        "name": "Dogovorjena moč blok 3"
+      },
+      "agreed_power_b4": {
+        "name": "Dogovorjena moč blok 4"
+      },
+      "agreed_power_b5": {
+        "name": "Dogovorjena moč blok 5"
+      }
+    }
+  },
+  "issues": {
+    "missing_network_tariff": {
+      "title": "Manjkajoče tarifne postavke omrežnine",
+      "description": "Nobena vgrajena tarifna postavka omrežnine ne pokriva datuma {date}. Posodobite register tarif ali počakajte na objavljene uradne tabele. Izračuni za to obdobje so nepopolni."
+    }
+  }
+}
