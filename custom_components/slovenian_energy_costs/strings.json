@@ -99,6 +99,18 @@
       "description": "No bundled network tariff rates cover {date}. Update the rate registry or wait for published official tables. Calculations for this period are incomplete."
     }
   },
+  "services": {
+    "reset_monetary_costs": {
+      "name": "Reset monetary costs",
+      "description": "Zero EUR cost counters and the current month's money totals. Energy (kWh) totals and processed interval IDs are kept. Does not reprice history.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Site config entry ID (required when more than one site exists)."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "current_supplier_price": { "name": "Current supplier price" },

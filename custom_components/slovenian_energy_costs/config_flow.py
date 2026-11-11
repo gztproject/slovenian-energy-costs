@@ -93,6 +93,150 @@ def _entity_selector() -> selector.EntitySelector:
     )
 
 
+def _number_selector(
+    *,
+    min_value: float = 0.0,
+    max_value: float,
+    unit: str | None = None,
+    step: float | str = "any",
+) -> selector.NumberSelector:
+    """BOX number input with explicit step so decimals are never locked to 1."""
+    config: dict[str, Any] = {
+        "min": min_value,
+        "max": max_value,
+        "step": step,
+        "mode": selector.NumberSelectorMode.BOX,
+    }
+    if unit is not None:
+        config["unit_of_measurement"] = unit
+    return selector.NumberSelector(selector.NumberSelectorConfig(**config))
+
+
+def _eur_per_kwh_selector(*, max_value: float = 5.0) -> selector.NumberSelector:
+    """Commodity / levy price in €/kWh (sane residential range)."""
+    return _number_selector(max_value=max_value, unit="€/kWh")
+
+
+def _percent_selector(*, max_value: float = 100.0) -> selector.NumberSelector:
+    return _number_selector(max_value=max_value, unit="%")
+
+
+def _eur_selector(*, max_value: float = 1000.0) -> selector.NumberSelector:
+    return _number_selector(max_value=max_value, unit="€")
+
+
+def _kw_selector(*, max_value: float = 100.0) -> selector.NumberSelector:
+    return _number_selector(max_value=max_value, unit="kW")
+
+
+def _float_default(value: Any, fallback: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
+def _bounded_default(
+    value: Any, fallback: float, *, min_value: float = 0.0, max_value: float
+) -> float:
+    """Return fallback when stored value is outside selector bounds (recovery)."""
+    parsed = _float_default(value, fallback)
+    if parsed < min_value or parsed > max_value:
+        return fallback
+    return parsed
+
+
+def build_supplier_schema() -> vol.Schema:
+    """Schema for initial supplier contract step."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_SUPPLIER_MODE, default=SUPPLIER_ET): vol.In(
+                [SUPPLIER_ET, SUPPLIER_VT_MT, SUPPLIER_DYNAMIC]
+            ),
+            vol.Optional(CONF_SUPPLIER_ET_PRICE, default=0.12): _eur_per_kwh_selector(),
+            vol.Optional(CONF_SUPPLIER_VT_PRICE, default=0.14): _eur_per_kwh_selector(),
+            vol.Optional(CONF_SUPPLIER_MT_PRICE, default=0.10): _eur_per_kwh_selector(),
+            vol.Optional(CONF_DYNAMIC_PRICE_ENTITY): _entity_selector(),
+            vol.Optional(
+                CONF_SUPPLIER_MARKUP_FIXED, default=0.0
+            ): _eur_per_kwh_selector(),
+            vol.Optional(CONF_SUPPLIER_MARKUP_PCT, default=0.0): _percent_selector(),
+            vol.Optional(CONF_SUPPLIER_DISCOUNT_PCT, default=0.0): _percent_selector(),
+            vol.Optional(CONF_PRICES_INCLUDE_VAT, default=False): bool,
+            vol.Optional(CONF_VAT_RATE, default=0.22): _number_selector(
+                max_value=1.0, unit=None
+            ),
+            vol.Optional(
+                CONF_FIXED_MONTHLY_SUPPLIER, default=0.0
+            ): _eur_selector(),
+        }
+    )
+
+
+def build_network_schema() -> vol.Schema:
+    """Schema for network category / agreed power / levies."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_CUSTOMER_CATEGORY, default="0"): vol.In(
+                ["0", "1", "2", "3", "4"]
+            ),
+            vol.Required(CONF_HAS_15MIN_MEASUREMENT, default=True): bool,
+            vol.Optional("agreed_power_b1", default=0.0): _kw_selector(),
+            vol.Optional("agreed_power_b2", default=0.0): _kw_selector(),
+            vol.Optional("agreed_power_b3", default=0.0): _kw_selector(),
+            vol.Optional("agreed_power_b4", default=0.0): _kw_selector(),
+            vol.Optional("agreed_power_b5", default=0.0): _kw_selector(),
+            vol.Optional(CONF_ENABLE_LEVIES, default=True): bool,
+            vol.Optional(CONF_EXCISE_RATE, default=0.00153): _eur_per_kwh_selector(
+                max_value=1.0
+            ),
+            vol.Optional(CONF_OVE_SPTE_RATE, default=0.00899): _eur_per_kwh_selector(
+                max_value=1.0
+            ),
+        }
+    )
+
+
+def build_options_schema(data: dict[str, Any]) -> vol.Schema:
+    """Schema for options flow rate edits."""
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_SUPPLIER_ET_PRICE,
+                default=_bounded_default(
+                    data.get(CONF_SUPPLIER_ET_PRICE), 0.12, max_value=5.0
+                ),
+            ): _eur_per_kwh_selector(),
+            vol.Optional(
+                CONF_SUPPLIER_VT_PRICE,
+                default=_bounded_default(
+                    data.get(CONF_SUPPLIER_VT_PRICE), 0.14, max_value=5.0
+                ),
+            ): _eur_per_kwh_selector(),
+            vol.Optional(
+                CONF_SUPPLIER_MT_PRICE,
+                default=_bounded_default(
+                    data.get(CONF_SUPPLIER_MT_PRICE), 0.10, max_value=5.0
+                ),
+            ): _eur_per_kwh_selector(),
+            vol.Optional(
+                CONF_FIXED_MONTHLY_SUPPLIER,
+                default=_bounded_default(
+                    data.get(CONF_FIXED_MONTHLY_SUPPLIER), 0.0, max_value=1000.0
+                ),
+            ): _eur_selector(),
+            vol.Optional(
+                CONF_PRICES_INCLUDE_VAT,
+                default=bool(data.get(CONF_PRICES_INCLUDE_VAT, False)),
+            ): bool,
+            vol.Optional(
+                CONF_ENABLE_LEVIES,
+                default=bool(data.get(CONF_ENABLE_LEVIES, True)),
+            ): bool,
+        }
+    )
+
+
 class SlovenianEnergyCostsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow."""
 
@@ -137,23 +281,7 @@ class SlovenianEnergyCostsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_supplier(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_SUPPLIER_MODE, default=SUPPLIER_ET): vol.In(
-                    [SUPPLIER_ET, SUPPLIER_VT_MT, SUPPLIER_DYNAMIC]
-                ),
-                vol.Optional(CONF_SUPPLIER_ET_PRICE, default=0.12): vol.Coerce(float),
-                vol.Optional(CONF_SUPPLIER_VT_PRICE, default=0.14): vol.Coerce(float),
-                vol.Optional(CONF_SUPPLIER_MT_PRICE, default=0.10): vol.Coerce(float),
-                vol.Optional(CONF_DYNAMIC_PRICE_ENTITY): _entity_selector(),
-                vol.Optional(CONF_SUPPLIER_MARKUP_FIXED, default=0.0): vol.Coerce(float),
-                vol.Optional(CONF_SUPPLIER_MARKUP_PCT, default=0.0): vol.Coerce(float),
-                vol.Optional(CONF_SUPPLIER_DISCOUNT_PCT, default=0.0): vol.Coerce(float),
-                vol.Optional(CONF_PRICES_INCLUDE_VAT, default=False): bool,
-                vol.Optional(CONF_VAT_RATE, default=0.22): vol.Coerce(float),
-                vol.Optional(CONF_FIXED_MONTHLY_SUPPLIER, default=0.0): vol.Coerce(float),
-            }
-        )
+        schema = build_supplier_schema()
         if user_input is None:
             return self.async_show_form(step_id="supplier", data_schema=schema)
         self._data.update(user_input)
@@ -162,22 +290,7 @@ class SlovenianEnergyCostsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_network(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_CUSTOMER_CATEGORY, default="0"): vol.In(
-                    ["0", "1", "2", "3", "4"]
-                ),
-                vol.Required(CONF_HAS_15MIN_MEASUREMENT, default=True): bool,
-                vol.Optional("agreed_power_b1", default=0.0): vol.Coerce(float),
-                vol.Optional("agreed_power_b2", default=0.0): vol.Coerce(float),
-                vol.Optional("agreed_power_b3", default=0.0): vol.Coerce(float),
-                vol.Optional("agreed_power_b4", default=0.0): vol.Coerce(float),
-                vol.Optional("agreed_power_b5", default=0.0): vol.Coerce(float),
-                vol.Optional(CONF_ENABLE_LEVIES, default=True): bool,
-                vol.Optional(CONF_EXCISE_RATE, default=0.00153): vol.Coerce(float),
-                vol.Optional(CONF_OVE_SPTE_RATE, default=0.00899): vol.Coerce(float),
-            }
-        )
+        schema = build_network_schema()
         if user_input is None:
             return self.async_show_form(step_id="network", data_schema=schema)
 
@@ -288,34 +401,7 @@ class SlovenianEnergyCostsOptionsFlow(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
         data = {**self._entry.data, **self._entry.options}
-        schema = vol.Schema(
-            {
-                vol.Optional(
-                    CONF_SUPPLIER_ET_PRICE,
-                    default=float(data.get(CONF_SUPPLIER_ET_PRICE, 0.12)),
-                ): vol.Coerce(float),
-                vol.Optional(
-                    CONF_SUPPLIER_VT_PRICE,
-                    default=float(data.get(CONF_SUPPLIER_VT_PRICE, 0.14)),
-                ): vol.Coerce(float),
-                vol.Optional(
-                    CONF_SUPPLIER_MT_PRICE,
-                    default=float(data.get(CONF_SUPPLIER_MT_PRICE, 0.10)),
-                ): vol.Coerce(float),
-                vol.Optional(
-                    CONF_FIXED_MONTHLY_SUPPLIER,
-                    default=float(data.get(CONF_FIXED_MONTHLY_SUPPLIER, 0)),
-                ): vol.Coerce(float),
-                vol.Optional(
-                    CONF_PRICES_INCLUDE_VAT,
-                    default=bool(data.get(CONF_PRICES_INCLUDE_VAT, False)),
-                ): bool,
-                vol.Optional(
-                    CONF_ENABLE_LEVIES,
-                    default=bool(data.get(CONF_ENABLE_LEVIES, True)),
-                ): bool,
-            }
-        )
+        schema = build_options_schema(data)
         if user_input is None:
             return self.async_show_form(step_id="init", data_schema=schema)
         return self.async_create_entry(title="", data=user_input)

@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from .const import DOMAIN
+from .const import ATTR_CONFIG_ENTRY_ID, DOMAIN, SERVICE_RESET_MONETARY_COSTS
 
 if TYPE_CHECKING:
-    from decimal import Decimal
-
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.typing import ConfigType
@@ -21,7 +19,38 @@ if TYPE_CHECKING:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up from YAML (unsupported — UI only)."""
+    import voluptuous as vol
+    from homeassistant.core import ServiceCall
+    from homeassistant.exceptions import ServiceValidationError
+
     hass.data.setdefault(DOMAIN, {})
+
+    async def _handle_reset_monetary_costs(call: ServiceCall) -> None:
+        entry_id = call.data.get(ATTR_CONFIG_ENTRY_ID)
+        coordinators = hass.data.get(DOMAIN) or {}
+        if entry_id:
+            coordinator = coordinators.get(entry_id)
+            if coordinator is None:
+                raise ServiceValidationError(f"Unknown config entry: {entry_id}")
+            await coordinator.async_reset_monetary_counters()
+            return
+        if len(coordinators) != 1:
+            raise ServiceValidationError(
+                f"config_entry_id required when {len(coordinators)} sites are configured"
+            )
+        await next(iter(coordinators.values())).async_reset_monetary_counters()
+
+    if not hass.services.has_service(DOMAIN, SERVICE_RESET_MONETARY_COSTS):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_RESET_MONETARY_COSTS,
+            _handle_reset_monetary_costs,
+            schema=vol.Schema(
+                {
+                    vol.Optional(ATTR_CONFIG_ENTRY_ID): str,
+                }
+            ),
+        )
     return True
 
 

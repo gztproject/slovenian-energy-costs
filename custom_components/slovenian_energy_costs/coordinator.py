@@ -420,6 +420,27 @@ class BillingCoordinator:
     def get_price(self, key: str) -> Decimal | None:
         return self._current_prices.get(key)
 
+    async def async_reset_monetary_counters(self) -> None:
+        """Zero EUR cost totals; keep energy counters and processed IDs."""
+        previous = self.data.counters.monetary_snapshot()
+        monthly_previous = (
+            self.data.monthly.to_dict() if self.data.monthly is not None else None
+        )
+        self.data.counters.reset_monetary()
+        if self.data.monthly is not None:
+            self.data.monthly.reset_monetary()
+        self.data.adjustments.append(
+            {
+                "type": "reset_monetary",
+                "timestamp": dt_util.now().isoformat(),
+                "previous_counters": previous,
+                "previous_monthly": monthly_previous,
+            }
+        )
+        self._last_status = "monetary_reset"
+        await self.store.async_save()
+        self._notify()
+
     @property
     def status(self) -> str:
         return self._last_status

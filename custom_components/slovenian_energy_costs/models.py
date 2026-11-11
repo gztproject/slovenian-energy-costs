@@ -521,6 +521,34 @@ class CostCounters:
         self.annual_export_kwh += result.physical_export_kwh
         self.shared_energy_deducted_kwh += result.shared_allocated_kwh
 
+    def monetary_snapshot(self) -> dict[str, str]:
+        """Return EUR counter fields only (for audit before reset)."""
+        return {
+            "grid_variable_cost_total": str(self.grid_variable_cost_total),
+            "supplier_energy_cost_total": str(self.supplier_energy_cost_total),
+            "network_energy_cost_total": str(self.network_energy_cost_total),
+            "network_power_cost_total": str(self.network_power_cost_total),
+            "levies_total": str(self.levies_total),
+            "vat_total": str(self.vat_total),
+            "invoice_cost_total": str(self.invoice_cost_total),
+            "souporaba_savings_total": str(self.souporaba_savings_total),
+            "unused_allocation_value_total": str(
+                self.unused_allocation_value_total
+            ),
+        }
+
+    def reset_monetary(self) -> None:
+        """Zero EUR totals; leave energy (kWh) counters unchanged."""
+        self.grid_variable_cost_total = Decimal("0")
+        self.supplier_energy_cost_total = Decimal("0")
+        self.network_energy_cost_total = Decimal("0")
+        self.network_power_cost_total = Decimal("0")
+        self.levies_total = Decimal("0")
+        self.vat_total = Decimal("0")
+        self.invoice_cost_total = Decimal("0")
+        self.souporaba_savings_total = Decimal("0")
+        self.unused_allocation_value_total = Decimal("0")
+
     def to_dict(self) -> dict[str, str]:
         return {k: str(v) for k, v in asdict(self).items()}
 
@@ -543,6 +571,15 @@ class MonthlyPeriodState:
     vat: Decimal = Decimal("0")
     estimated_invoice: Decimal = Decimal("0")
     power_charged: bool = False
+
+    def reset_monetary(self) -> None:
+        """Zero month money fields; keep year/month and power_charged."""
+        self.supplier_energy_cost = Decimal("0")
+        self.network_energy_cost = Decimal("0")
+        self.network_power_cost = Decimal("0")
+        self.other_charges = Decimal("0")
+        self.vat = Decimal("0")
+        self.estimated_invoice = Decimal("0")
 
     def to_dict(self) -> dict[str, Any]:
         return {

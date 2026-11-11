@@ -213,6 +213,18 @@
       }
     }
   },
+  "services": {
+    "reset_monetary_costs": {
+      "name": "Ponastavi denarne števce",
+      "description": "Ponastavi EUR števce stroškov in denarne zneske tekočega meseca. Energijski (kWh) seštevki in ID-ji obdelanih intervalov ostanejo. Zgodovine ne preračunava.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Konfiguracijski vnos",
+          "description": "ID konfiguracijskega vnosa mesta (obvezno, če obstaja več mest)."
+        }
+      }
+    }
+  },
   "issues": {
     "missing_network_tariff": {
       "title": "Manjkajoče tarifne postavke omrežnine",

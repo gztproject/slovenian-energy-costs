@@ -123,5 +123,7 @@ QUALITY_INVALID: Final = "invalid"
 # Services
 SERVICE_APPLY_ADJUSTMENT: Final = "apply_adjustment"
 SERVICE_PROCESS_NOW: Final = "process_now"
+SERVICE_RESET_MONETARY_COSTS: Final = "reset_monetary_costs"
+ATTR_CONFIG_ENTRY_ID: Final = "config_entry_id"
 
 PLATFORMS: Final = ("sensor", "number")
