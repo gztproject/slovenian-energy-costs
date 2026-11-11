@@ -60,6 +60,14 @@
           "ove_spte_rate": "OVE/SPTE (€/kWh)"
         }
       },
+      "net_metering": {
+        "title": "Net metering opening",
+        "description": "Optional opening balance for annual net metering. Leave blank if unknown; reserve status will stay incomplete.",
+        "data": {
+          "net_metering_opening_balance": "Opening balance (kWh)",
+          "net_metering_opening_date": "Opening balance date"
+        }
+      },
       "settlement": {
         "title": "Settlement source",
         "description": "Use physical meters or Souporaba (energy_sharing) settlement.",
@@ -80,15 +88,18 @@
   "options": {
     "step": {
       "init": {
-        "title": "Update contract rates",
-        "description": "Changing rates does not reprice historical intervals.",
+        "title": "Update site settings",
+        "description": "Changing rates or opening balance does not reprice historical money intervals. Opening balance only updates the net-metering reference.",
         "data": {
           "supplier_et_price": "ET price (€/kWh)",
           "supplier_vt_price": "VT price (€/kWh)",
           "supplier_mt_price": "MT price (€/kWh)",
           "fixed_monthly_supplier": "Fixed monthly supplier charge (€)",
           "prices_include_vat": "Configured prices include VAT",
-          "enable_levies": "Enable per-kWh levies"
+          "enable_levies": "Enable per-kWh levies",
+          "settlement_source": "Settlement source",
+          "net_metering_opening_balance": "Opening balance (kWh)",
+          "net_metering_opening_date": "Opening balance date"
         }
       }
     }

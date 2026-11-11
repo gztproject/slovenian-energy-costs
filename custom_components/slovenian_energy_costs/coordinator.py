@@ -15,7 +15,11 @@ from homeassistant.helpers.event import (
 from homeassistant.util import dt as dt_util
 
 from .billing.engine import BillingEngine
-from .billing.net_metering import apply_interval_to_net_metering, create_year_state
+from .billing.net_metering import (
+    apply_interval_to_net_metering,
+    apply_opening_from_config,
+    create_year_state,
+)
 from .billing.network_power import calculate_monthly_network_power
 from .billing.providers import (
     align_interval_end,
@@ -397,6 +401,9 @@ class BillingCoordinator:
             or self.data.net_metering.year != today.year
         ):
             self.data.net_metering = create_year_state(today.year, self.config)
+        else:
+            # Options/config may update opening without recreating the year.
+            apply_opening_from_config(self.data.net_metering, self.config)
 
     def _refresh_prices(self, when: datetime) -> None:
         dynamic = None

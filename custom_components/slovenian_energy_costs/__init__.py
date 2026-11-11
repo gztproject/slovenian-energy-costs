@@ -58,6 +58,8 @@ def build_site_config(data: dict[str, Any]) -> SiteConfig:
     """Build SiteConfig from config entry data/options."""
     from decimal import Decimal
 
+    from datetime import date
+
     from .const import (
         CONF_AGREED_POWER,
         CONF_BILLING_MODELS,
@@ -70,6 +72,8 @@ def build_site_config(data: dict[str, Any]) -> SiteConfig:
         CONF_GRID_EXPORT_ENTITY,
         CONF_GRID_IMPORT_ENTITY,
         CONF_HAS_15MIN_MEASUREMENT,
+        CONF_NET_METERING_OPENING_BALANCE,
+        CONF_NET_METERING_OPENING_DATE,
         CONF_OVE_SPTE_RATE,
         CONF_PRICES_INCLUDE_VAT,
         CONF_SETTLEMENT_SOURCE,
@@ -95,6 +99,18 @@ def build_site_config(data: dict[str, Any]) -> SiteConfig:
 
     def d(key: str, default: str = "0") -> Decimal:
         return Decimal(str(data.get(key, default)))
+
+    opening_raw = data.get(CONF_NET_METERING_OPENING_BALANCE)
+    opening_balance = (
+        Decimal(str(opening_raw)) if opening_raw is not None and opening_raw != "" else None
+    )
+    opening_date_raw = data.get(CONF_NET_METERING_OPENING_DATE)
+    opening_date: date | None = None
+    if opening_date_raw:
+        if isinstance(opening_date_raw, date):
+            opening_date = opening_date_raw
+        else:
+            opening_date = date.fromisoformat(str(opening_date_raw))
 
     return SiteConfig(
         site_name=str(data.get(CONF_SITE_NAME) or data.get("name") or "Site"),
@@ -125,6 +141,8 @@ def build_site_config(data: dict[str, Any]) -> SiteConfig:
         settlement_source=str(data.get(CONF_SETTLEMENT_SOURCE, "physical")),
         souporaba_entry_id=data.get(CONF_SOUPORABA_ENTRY_ID),
         souporaba_entities=dict(data.get(CONF_SOUPORABA_ENTITIES) or {}),
+        net_metering_opening_balance=opening_balance,
+        net_metering_opening_date=opening_date,
     )
 
 

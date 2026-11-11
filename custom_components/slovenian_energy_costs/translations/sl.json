@@ -60,6 +60,14 @@
           "ove_spte_rate": "OVE/SPTE (€/kWh)"
         }
       },
+      "net_metering": {
+        "title": "Začetno stanje letnega netiranja",
+        "description": "Neobvezno začetno stanje za letno netiranje. Če ne veste, pustite prazno; status rezerve ostane nepopoln.",
+        "data": {
+          "net_metering_opening_balance": "Začetno stanje (kWh)",
+          "net_metering_opening_date": "Datum začetnega stanja"
+        }
+      },
       "settlement": {
         "title": "Vir poravnave",
         "description": "Uporabite fizične števce ali poravnavo Souporaba (energy_sharing).",
@@ -80,15 +88,18 @@
   "options": {
     "step": {
       "init": {
-        "title": "Posodobitev cen pogodbe",
-        "description": "Sprememba cen ne preracunava zgodovinskih intervalov.",
+        "title": "Posodobitev nastavitev mesta",
+        "description": "Sprememba cen ali začetnega stanja ne preračunava denarnih intervalov. Začetno stanje posodobi le referenco netiranja.",
         "data": {
           "supplier_et_price": "Cena ET (€/kWh)",
           "supplier_vt_price": "Cena VT (€/kWh)",
           "supplier_mt_price": "Cena MT (€/kWh)",
           "fixed_monthly_supplier": "Fiksna mesečna dajatev dobavitelja (€)",
           "prices_include_vat": "Nastavljene cene vključujejo DDV",
-          "enable_levies": "Omogoči dajatve na kWh"
+          "enable_levies": "Omogoči dajatve na kWh",
+          "settlement_source": "Vir poravnave",
+          "net_metering_opening_balance": "Začetno stanje (kWh)",
+          "net_metering_opening_date": "Datum začetnega stanja"
         }
       }
     }

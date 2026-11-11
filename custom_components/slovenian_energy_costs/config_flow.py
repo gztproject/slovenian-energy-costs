@@ -22,6 +22,8 @@ from .const import (
     CONF_GRID_EXPORT_ENTITY,
     CONF_GRID_IMPORT_ENTITY,
     CONF_HAS_15MIN_MEASUREMENT,
+    CONF_NET_METERING_OPENING_BALANCE,
+    CONF_NET_METERING_OPENING_DATE,
     CONF_OVE_SPTE_RATE,
     CONF_PRICES_INCLUDE_VAT,
     CONF_SETTLEMENT_SOURCE,
@@ -129,6 +131,41 @@ def _kw_selector(*, max_value: float = 100.0) -> selector.NumberSelector:
     return _number_selector(max_value=max_value, unit="kW")
 
 
+def _kwh_selector(
+    *, min_value: float = -1_000_000.0, max_value: float = 1_000_000.0
+) -> selector.NumberSelector:
+    """Annual net-metering opening balance (surplus or deficit)."""
+    return _number_selector(
+        min_value=min_value, max_value=max_value, unit="kWh"
+    )
+
+
+def _date_selector() -> selector.DateSelector:
+    return selector.DateSelector()
+
+
+def _wants_net_metering(models: Any) -> bool:
+    return bool(set(models or []) & {MODEL_NET_METERING, MODEL_SOUPORABA_DONOR})
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_date_str(value: Any) -> str | None:
+    if value is None or value == "":
+        return None
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    text = str(value).strip()
+    return text or None
+
+
 def _float_default(value: Any, fallback: float) -> float:
     try:
         return float(value)
@@ -197,44 +234,82 @@ def build_network_schema() -> vol.Schema:
     )
 
 
+def build_net_metering_schema(data: dict[str, Any] | None = None) -> vol.Schema:
+    """Opening balance / date for net metering or Souporaba donor."""
+    data = data or {}
+    balance = _optional_float(data.get(CONF_NET_METERING_OPENING_BALANCE))
+    opening_date = _optional_date_str(data.get(CONF_NET_METERING_OPENING_DATE))
+    schema: dict[Any, Any] = {}
+    if balance is not None:
+        schema[
+            vol.Optional(CONF_NET_METERING_OPENING_BALANCE, default=balance)
+        ] = _kwh_selector()
+    else:
+        schema[vol.Optional(CONF_NET_METERING_OPENING_BALANCE)] = _kwh_selector()
+    if opening_date is not None:
+        schema[
+            vol.Optional(CONF_NET_METERING_OPENING_DATE, default=opening_date)
+        ] = _date_selector()
+    else:
+        schema[vol.Optional(CONF_NET_METERING_OPENING_DATE)] = _date_selector()
+    return vol.Schema(schema)
+
+
 def build_options_schema(data: dict[str, Any]) -> vol.Schema:
-    """Schema for options flow rate edits."""
-    return vol.Schema(
-        {
-            vol.Optional(
-                CONF_SUPPLIER_ET_PRICE,
-                default=_bounded_default(
-                    data.get(CONF_SUPPLIER_ET_PRICE), 0.12, max_value=5.0
-                ),
-            ): _eur_per_kwh_selector(),
-            vol.Optional(
-                CONF_SUPPLIER_VT_PRICE,
-                default=_bounded_default(
-                    data.get(CONF_SUPPLIER_VT_PRICE), 0.14, max_value=5.0
-                ),
-            ): _eur_per_kwh_selector(),
-            vol.Optional(
-                CONF_SUPPLIER_MT_PRICE,
-                default=_bounded_default(
-                    data.get(CONF_SUPPLIER_MT_PRICE), 0.10, max_value=5.0
-                ),
-            ): _eur_per_kwh_selector(),
-            vol.Optional(
-                CONF_FIXED_MONTHLY_SUPPLIER,
-                default=_bounded_default(
-                    data.get(CONF_FIXED_MONTHLY_SUPPLIER), 0.0, max_value=1000.0
-                ),
-            ): _eur_selector(),
-            vol.Optional(
-                CONF_PRICES_INCLUDE_VAT,
-                default=bool(data.get(CONF_PRICES_INCLUDE_VAT, False)),
-            ): bool,
-            vol.Optional(
-                CONF_ENABLE_LEVIES,
-                default=bool(data.get(CONF_ENABLE_LEVIES, True)),
-            ): bool,
-        }
-    )
+    """Schema for options flow rate and net-metering edits."""
+    balance = _optional_float(data.get(CONF_NET_METERING_OPENING_BALANCE))
+    opening_date = _optional_date_str(data.get(CONF_NET_METERING_OPENING_DATE))
+    fields: dict[Any, Any] = {
+        vol.Optional(
+            CONF_SUPPLIER_ET_PRICE,
+            default=_bounded_default(
+                data.get(CONF_SUPPLIER_ET_PRICE), 0.12, max_value=5.0
+            ),
+        ): _eur_per_kwh_selector(),
+        vol.Optional(
+            CONF_SUPPLIER_VT_PRICE,
+            default=_bounded_default(
+                data.get(CONF_SUPPLIER_VT_PRICE), 0.14, max_value=5.0
+            ),
+        ): _eur_per_kwh_selector(),
+        vol.Optional(
+            CONF_SUPPLIER_MT_PRICE,
+            default=_bounded_default(
+                data.get(CONF_SUPPLIER_MT_PRICE), 0.10, max_value=5.0
+            ),
+        ): _eur_per_kwh_selector(),
+        vol.Optional(
+            CONF_FIXED_MONTHLY_SUPPLIER,
+            default=_bounded_default(
+                data.get(CONF_FIXED_MONTHLY_SUPPLIER), 0.0, max_value=1000.0
+            ),
+        ): _eur_selector(),
+        vol.Optional(
+            CONF_PRICES_INCLUDE_VAT,
+            default=bool(data.get(CONF_PRICES_INCLUDE_VAT, False)),
+        ): bool,
+        vol.Optional(
+            CONF_ENABLE_LEVIES,
+            default=bool(data.get(CONF_ENABLE_LEVIES, True)),
+        ): bool,
+        vol.Optional(
+            CONF_SETTLEMENT_SOURCE,
+            default=str(data.get(CONF_SETTLEMENT_SOURCE, SETTLEMENT_PHYSICAL)),
+        ): vol.In([SETTLEMENT_PHYSICAL, SETTLEMENT_SOUPORABA]),
+    }
+    if balance is not None:
+        fields[
+            vol.Optional(CONF_NET_METERING_OPENING_BALANCE, default=balance)
+        ] = _kwh_selector()
+    else:
+        fields[vol.Optional(CONF_NET_METERING_OPENING_BALANCE)] = _kwh_selector()
+    if opening_date is not None:
+        fields[
+            vol.Optional(CONF_NET_METERING_OPENING_DATE, default=opening_date)
+        ] = _date_selector()
+    else:
+        fields[vol.Optional(CONF_NET_METERING_OPENING_DATE)] = _date_selector()
+    return vol.Schema(fields)
 
 
 class SlovenianEnergyCostsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -303,6 +378,30 @@ class SlovenianEnergyCostsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input.pop(key)
         self._data.update(user_input)
         self._data[CONF_AGREED_POWER] = agreed
+        return await self.async_step_net_metering()
+
+    async def async_step_net_metering(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if not _wants_net_metering(self._data.get(CONF_BILLING_MODELS)):
+            return await self.async_step_settlement()
+
+        schema = build_net_metering_schema(self._data)
+        if user_input is None:
+            return self.async_show_form(step_id="net_metering", data_schema=schema)
+
+        balance = _optional_float(user_input.get(CONF_NET_METERING_OPENING_BALANCE))
+        opening_date = _optional_date_str(
+            user_input.get(CONF_NET_METERING_OPENING_DATE)
+        )
+        if balance is None:
+            self._data.pop(CONF_NET_METERING_OPENING_BALANCE, None)
+        else:
+            self._data[CONF_NET_METERING_OPENING_BALANCE] = balance
+        if opening_date is None:
+            self._data.pop(CONF_NET_METERING_OPENING_DATE, None)
+        else:
+            self._data[CONF_NET_METERING_OPENING_DATE] = opening_date
         return await self.async_step_settlement()
 
     async def async_step_settlement(
@@ -404,4 +503,13 @@ class SlovenianEnergyCostsOptionsFlow(config_entries.OptionsFlow):
         schema = build_options_schema(data)
         if user_input is None:
             return self.async_show_form(step_id="init", data_schema=schema)
-        return self.async_create_entry(title="", data=user_input)
+
+        normalized = dict(user_input)
+        # Store null explicitly so options override entry.data on merge/clear.
+        normalized[CONF_NET_METERING_OPENING_BALANCE] = _optional_float(
+            normalized.get(CONF_NET_METERING_OPENING_BALANCE)
+        )
+        normalized[CONF_NET_METERING_OPENING_DATE] = _optional_date_str(
+            normalized.get(CONF_NET_METERING_OPENING_DATE)
+        )
+        return self.async_create_entry(title="", data=normalized)

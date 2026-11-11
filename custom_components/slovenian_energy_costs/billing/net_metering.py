@@ -73,6 +73,20 @@ def apply_interval_to_net_metering(
     return state, update
 
 
+def _history_complete_for_year(
+    year: int,
+    *,
+    opening: Decimal | None,
+    opening_date: date | None,
+    recording_started: date | None = None,
+) -> bool:
+    if opening is not None and opening_date is not None:
+        return opening_date <= date(year, 1, 1)
+    if recording_started is not None and recording_started <= date(year, 1, 1):
+        return True
+    return False
+
+
 def create_year_state(
     year: int,
     config: SiteConfig,
@@ -82,17 +96,35 @@ def create_year_state(
     """Create net-metering state for a calendar year."""
     opening = config.net_metering_opening_balance
     opening_date = config.net_metering_opening_date
-    history_complete = False
-    if opening is not None and opening_date is not None:
-        history_complete = opening_date <= date(year, 1, 1)
-    elif recording_started is not None and recording_started <= date(year, 1, 1):
-        history_complete = True
     return NetMeteringState(
         year=year,
         opening_balance_kwh=opening,
         opening_date=opening_date,
-        history_complete=history_complete,
+        history_complete=_history_complete_for_year(
+            year,
+            opening=opening,
+            opening_date=opening_date,
+            recording_started=recording_started,
+        ),
     )
+
+
+def apply_opening_from_config(
+    state: NetMeteringState,
+    config: SiteConfig,
+    *,
+    recording_started: date | None = None,
+) -> NetMeteringState:
+    """Update opening fields on an existing year state; keep observed totals."""
+    state.opening_balance_kwh = config.net_metering_opening_balance
+    state.opening_date = config.net_metering_opening_date
+    state.history_complete = _history_complete_for_year(
+        state.year,
+        opening=state.opening_balance_kwh,
+        opening_date=state.opening_date,
+        recording_started=recording_started,
+    )
+    return state
 
 
 def projected_year_end_balance(

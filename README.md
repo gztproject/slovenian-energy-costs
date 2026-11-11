@@ -13,7 +13,7 @@ Custom Home Assistant integration that estimates Slovenian electricity costs —
 
 > **Disclaimer:** This integration produces **estimated** financial settlements for home automation. It is **not** an official invoice and may differ from your supplier or DSO bill.
 
-> **Pre-release:** `0.1.0b3` is a beta. In HACS, enable **Show beta versions** before installing.
+> **Pre-release:** `0.1.0b4` is a beta. In HACS, enable **Show beta versions** before installing.
 
 **Minimum Home Assistant version:** 2025.1.0
 
