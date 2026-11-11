@@ -1,5 +1,9 @@
 # Slovenian Energy Costs
 
+<p align="center">
+  <img src="images/banner.jpg" alt="Slovenian Energy Costs — Home Assistant integration for Slovenian electricity cost estimation" width="720">
+</p>
+
 [![GitHub Release](https://img.shields.io/github/v/release/gztproject/slovenian-energy-costs?include_prereleases&label=pre-release)](https://github.com/gztproject/slovenian-energy-costs/releases)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![HA](https://img.shields.io/badge/Home%20Assistant-2025.1.0%2B-blue.svg)](https://www.home-assistant.io/)
@@ -9,7 +13,7 @@ Custom Home Assistant integration that estimates Slovenian electricity costs —
 
 > **Disclaimer:** This integration produces **estimated** financial settlements for home automation. It is **not** an official invoice and may differ from your supplier or DSO bill.
 
-> **Pre-release:** `0.1.0b2` is a beta. In HACS, enable **Show beta versions** before installing.
+> **Pre-release:** `0.1.0b3` is a beta. In HACS, enable **Show beta versions** before installing.
 
 **Minimum Home Assistant version:** 2025.1.0
 

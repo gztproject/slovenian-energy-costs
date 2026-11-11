@@ -1,5 +1,7 @@
 # Slovenian Energy Costs
 
+![Slovenian Energy Costs](https://raw.githubusercontent.com/gztproject/slovenian-energy-costs/main/images/banner.jpg)
+
 Estimated Slovenian electricity costs for the native Home Assistant Energy dashboard.
 
 This is a **pre-release**. Enable **Show beta versions** in HACS before installing.
