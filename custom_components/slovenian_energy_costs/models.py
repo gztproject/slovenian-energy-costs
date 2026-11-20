@@ -8,6 +8,8 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import Any
 
+from .const import MAX_STORED_ADJUSTMENTS
+
 
 class ComputationQuality(StrEnum):
     """Quality of a computed billing result."""
@@ -741,7 +743,7 @@ class IntegrationStorage:
             ),
             "last_reconciliation_status": self.last_reconciliation_status,
             "billing_data_quality": self.billing_data_quality,
-            "adjustments": list(self.adjustments),
+            "adjustments": list(self.adjustments[-MAX_STORED_ADJUSTMENTS:]),
         }
 
     @classmethod
@@ -780,5 +782,5 @@ class IntegrationStorage:
             billing_data_quality=data.get(
                 "billing_data_quality", ComputationQuality.INCOMPLETE.value
             ),
-            adjustments=list(data.get("adjustments") or []),
+            adjustments=list(data.get("adjustments") or [])[-MAX_STORED_ADJUSTMENTS:],
         )

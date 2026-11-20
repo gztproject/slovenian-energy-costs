@@ -126,4 +126,8 @@ SERVICE_PROCESS_NOW: Final = "process_now"
 SERVICE_RESET_MONETARY_COSTS: Final = "reset_monetary_costs"
 ATTR_CONFIG_ENTRY_ID: Final = "config_entry_id"
 
+# Storage bounds
+MAX_STORED_ADJUSTMENTS: Final = 500
+MONETARY_RESET_DAILY_LIMIT: Final = 8
+
 PLATFORMS: Final = ("sensor", "number")

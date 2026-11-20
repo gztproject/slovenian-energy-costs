@@ -8,6 +8,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_change,
@@ -28,8 +29,10 @@ from .billing.providers import (
 )
 from .billing.vat import apply_vat
 from .const import (
+    MAX_STORED_ADJUSTMENTS,
     MODEL_NET_METERING,
     MODEL_SOUPORABA_DONOR,
+    MONETARY_RESET_DAILY_LIMIT,
     SETTLEMENT_SOUPORABA,
     TIMEZONE,
 )
@@ -427,8 +430,31 @@ class BillingCoordinator:
     def get_price(self, key: str) -> Decimal | None:
         return self._current_prices.get(key)
 
+    def _monetary_resets_on_day_of(self, now: datetime) -> int:
+        count = 0
+        for adjustment in self.data.adjustments:
+            if not isinstance(adjustment, dict):
+                continue
+            if adjustment.get("type") != "reset_monetary":
+                continue
+            try:
+                stamp = datetime.fromisoformat(str(adjustment.get("timestamp")))
+            except ValueError:
+                continue
+            if stamp.tzinfo is None:
+                stamp = stamp.replace(tzinfo=now.tzinfo)
+            if stamp.astimezone(now.tzinfo).date() == now.date():
+                count += 1
+        return count
+
     async def async_reset_monetary_counters(self) -> None:
         """Zero EUR cost totals; keep energy counters and processed IDs."""
+        now = dt_util.now()
+        if self._monetary_resets_on_day_of(now) >= MONETARY_RESET_DAILY_LIMIT:
+            raise ServiceValidationError(
+                f"Monetary costs were already reset {MONETARY_RESET_DAILY_LIMIT} "
+                "times today; try again tomorrow"
+            )
         previous = self.data.counters.monetary_snapshot()
         monthly_previous = (
             self.data.monthly.to_dict() if self.data.monthly is not None else None
@@ -439,11 +465,12 @@ class BillingCoordinator:
         self.data.adjustments.append(
             {
                 "type": "reset_monetary",
-                "timestamp": dt_util.now().isoformat(),
+                "timestamp": now.isoformat(),
                 "previous_counters": previous,
                 "previous_monthly": monthly_previous,
             }
         )
+        del self.data.adjustments[:-MAX_STORED_ADJUSTMENTS]
         self._last_status = "monetary_reset"
         await self.store.async_save()
         self._notify()
