@@ -22,6 +22,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     import voluptuous as vol
     from homeassistant.core import ServiceCall
     from homeassistant.exceptions import ServiceValidationError
+    from homeassistant.helpers.service import async_register_admin_service
 
     hass.data.setdefault(DOMAIN, {})
 
@@ -41,7 +42,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         await next(iter(coordinators.values())).async_reset_monetary_counters()
 
     if not hass.services.has_service(DOMAIN, SERVICE_RESET_MONETARY_COSTS):
-        hass.services.async_register(
+        async_register_admin_service(
+            hass,
             DOMAIN,
             SERVICE_RESET_MONETARY_COSTS,
             _handle_reset_monetary_costs,
